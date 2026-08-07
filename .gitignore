@@ -1,0 +1,4 @@
+/lan-drop
+/shared/
+*.log
+.DS_Store

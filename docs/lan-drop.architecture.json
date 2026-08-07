@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "LAN Drop",
+    "subtitle": "Browser-based file transfer inside a trusted local network",
+    "output": "architecture.html"
+  },
+  "components": [
+    { "id": "qr", "type": "frontend", "label": "QR Pairing", "sublabel": "Private LAN URL", "pos": [40, 100], "size": [140, 64] },
+    { "id": "devices", "type": "external", "label": "LAN Devices", "sublabel": "Browser / Mobile", "pos": [40, 260], "size": [140, 64] },
+    { "id": "server", "type": "backend", "label": "Go HTTP Server", "sublabel": "API + embedded UI", "pos": [300, 260], "size": [150, 64] },
+    { "id": "token", "type": "security", "label": "Access Guard", "sublabel": "Startup code", "pos": [300, 100], "size": [150, 64] },
+    { "id": "files", "type": "database", "label": "Shared Directory", "sublabel": "Streamed files", "pos": [580, 260], "size": [150, 64] },
+    { "id": "index", "type": "database", "label": "Metadata Index", "sublabel": "Size + SHA-256", "pos": [580, 100], "size": [150, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Host machine", "wraps": ["server", "token", "files", "index"] }
+  ],
+  "connections": [
+    { "from": "token", "to": "qr", "label": "protected URL", "variant": "security", "fromSide": "left", "toSide": "right" },
+    { "from": "qr", "to": "devices", "label": "scan", "variant": "emphasis", "fromSide": "bottom", "toSide": "top", "labelAt": [110, 184] },
+    { "from": "devices", "to": "server", "label": "HTTP", "variant": "emphasis" },
+    { "from": "token", "to": "server", "label": "HttpOnly session", "variant": "security", "fromSide": "bottom", "toSide": "top", "labelAt": [375, 178] },
+    { "from": "server", "to": "files", "label": "stream + range", "variant": "emphasis" },
+    { "from": "server", "to": "index", "label": "atomic JSON", "fromSide": "top", "toSide": "left", "route": "orthogonal-v", "labelAt": [490, 120] }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Transfer path", "items": ["Files stream to disk without loading into memory", "The browser reports speed and remaining time"] },
+    { "dot": "amber", "title": "Pairing", "items": ["QR code contains the reachable LAN address", "Scanning establishes the same protected session"] },
+    { "dot": "rose", "title": "Safety boundary", "items": ["The startup code creates a SameSite session", "Filenames are normalized and confined to one directory"] },
+    { "dot": "emerald", "title": "Integrity", "items": ["SHA-256 is calculated during upload", "Metadata updates use atomic replacement"] }
+  ]
+}
