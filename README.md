@@ -1,5 +1,7 @@
 # LAN Drop
 
+[![CI](https://github.com/chilltongx/lan-drop/actions/workflows/ci.yml/badge.svg)](https://github.com/chilltongx/lan-drop/actions/workflows/ci.yml)
+
 一个使用 Go 编写的局域网文件快传工具。主机启动服务后，手机或其他电脑直接打开浏览器即可上传和下载文件。
 
 ![LAN Drop 桌面界面](docs/ui-desktop.png)
@@ -11,10 +13,23 @@
 - 实时上传进度、速度、预计剩余时间与取消操作
 - 流式写入磁盘，上传时同步计算 SHA-256
 - 文件列表、下载、删除和同名文件自动编号
+- SSE 实时同步，一台设备操作后其他页面无需刷新
 - HTTP Range 下载，支持浏览器续传
-- 启动连接码与 HttpOnly、SameSite 会话 Cookie
-- 响应式界面、暗色模式与减少动态效果适配
+- 启动连接码、HttpOnly/SameSite Cookie 与登录防爆破
+- 请求 ID、结构化访问日志与 `/healthz` 健康检查
+- 参考 Pass 的清爽响应式界面，支持减少动态效果
 - 单个 Go 二进制，网页资源已嵌入程序
+
+## 面试亮点
+
+- 流式上传与同步 SHA-256，内存占用不随文件大小线性增长
+- 临时文件 + `Rename` 原子发布，元数据索引原子替换
+- `RWMutex` 并发控制，同名并发上传测试与 race detector
+- SSE 事件广播、有限 channel 和非阻塞背压策略
+- 常量时间认证、每 IP 限流、路径穿越防护与明确的信任边界
+- CI 执行依赖校验、`go vet`、race test 和构建
+
+详细的开源项目对标、设计取舍、性能基线、演进路线和 90 秒讲法见[《面试设计说明》](docs/面试设计说明.md)。
 
 ## 快速开始
 
@@ -76,13 +91,21 @@ go vet ./...
 
 测试覆盖连接码会话、上传、SHA-256、同名处理、列表、Range 下载、删除、大小限制和目录穿越防护。项目还使用真实 Chromium 验证了桌面及移动端完整流程。
 
+当前核心包覆盖率：`internal/server` 82.2%，`internal/storage` 78.4%。
+
+运行可重复的 1 MiB 存储基准：
+
+```bash
+go test ./internal/storage -run '^$' -bench BenchmarkStoreSaveAndDelete1MiB -benchmem
+```
+
 ## 结构
 
 ```text
 cmd/lan-drop/       命令行入口与局域网地址发现
-internal/server/    HTTP API、访问控制和嵌入式网页
+internal/server/    HTTP API、访问控制、SSE 广播和嵌入式网页
 internal/storage/   文件存储、校验与元数据索引
-docs/               架构图和界面截图
+docs/               架构图、面试设计说明和界面截图
 ```
 
 [交互式架构图](docs/architecture.html)可以切换明暗主题，并导出 PNG、JPEG、WebP 或 SVG。

@@ -527,12 +527,12 @@
         <div class="pulse-dot"></div>
         <h1>LAN Drop</h1>
       </div>
-      <p class="subtitle">Browser-based file transfer inside a trusted local network</p>
+      <p class="subtitle">Interview-ready browser file transfer inside a trusted LAN</p>
     </div>
 
     <!-- Main Diagram -->
     <div class="diagram-container">
-      <svg viewBox="0 0 800 412" role="img" aria-label="LAN Drop — Browser-based file transfer inside a trusted local network (architecture diagram)">
+      <svg viewBox="0 0 950 592" role="img" aria-label="LAN Drop — Interview-ready browser file transfer inside a trusted LAN (architecture diagram)">
         <!-- Definitions -->
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -556,74 +556,101 @@
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         <!-- Boundaries (behind everything) -->
-        <rect x="270" y="70" width="490" height="274" rx="12" class="c-region" stroke-width="1"/>
-        <text x="278" y="88" class="t-cloud" font-size="9" font-weight="600">Host machine</text>
+        <rect x="220" y="60" width="690" height="464" rx="12" class="c-region" stroke-width="1"/>
+        <text x="228" y="78" class="t-cloud" font-size="9" font-weight="600">Host machine / single Go binary</text>
 
         <!-- Connection paths (before components for correct z-order) -->
-        <path d="M 300 132 L 180 132" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
-        <path d="M 110 164 L 110 260" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path d="M 180 292 L 300 292" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path d="M 375 164 L 375 260" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
-        <path d="M 450 292 L 580 292" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path d="M 375 260 L 375 204 Q 375 196 383 196 L 572 196 Q 580 196 580 188 L 580 132" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 110 154 L 110 270" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 180 302 L 250 302" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 325 154 L 325 270" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <path d="M 400 302 L 480 302" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 555 270 L 555 154" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 480 122 L 438 122 Q 430 122 430 130 L 430 202 Q 430 210 422 210 L 213 210 Q 205 210 205 218 L 205 294 Q 205 302 197 302 L 180 302" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 325 334 L 394.5 334 Q 402.5 334 402.5 342 L 402.5 464 Q 402.5 472 410.5 472 L 480 472" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 630 302 L 730 302" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 555 270 L 634.5 270 Q 642.5 270 642.5 262 L 642.5 130 Q 642.5 122 650.5 122 L 730 122" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
         <!-- Components -->
-        <rect x="40" y="100" width="140" height="64" rx="6" class="c-mask"/>
-        <rect x="40" y="100" width="140" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
-        <text x="110" y="130" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">QR Pairing</text>
-        <text x="110" y="146" class="t-muted" font-size="9" text-anchor="middle">Private LAN URL</text>
+        <rect x="40" y="270" width="140" height="64" rx="6" class="c-mask"/>
+        <rect x="40" y="270" width="140" height="64" rx="6" class="c-external" stroke-width="1.5"/>
+        <text x="110" y="300" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">LAN Devices</text>
+        <text x="110" y="316" class="t-muted" font-size="9" text-anchor="middle">Browser / Mobile</text>
 
-        <rect x="40" y="260" width="140" height="64" rx="6" class="c-mask"/>
-        <rect x="40" y="260" width="140" height="64" rx="6" class="c-external" stroke-width="1.5"/>
-        <text x="110" y="290" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">LAN Devices</text>
-        <text x="110" y="306" class="t-muted" font-size="9" text-anchor="middle">Browser / Mobile</text>
+        <rect x="40" y="90" width="140" height="64" rx="6" class="c-mask"/>
+        <rect x="40" y="90" width="140" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
+        <text x="110" y="120" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">QR Pairing</text>
+        <text x="110" y="136" class="t-muted" font-size="9" text-anchor="middle">LAN URL + code</text>
 
-        <rect x="300" y="260" width="150" height="64" rx="6" class="c-mask"/>
-        <rect x="300" y="260" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
-        <text x="375" y="290" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Go HTTP Server</text>
-        <text x="375" y="306" class="t-muted" font-size="9" text-anchor="middle">API + embedded UI</text>
+        <rect x="250" y="270" width="150" height="64" rx="6" class="c-mask"/>
+        <rect x="250" y="270" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="325" y="300" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">HTTP Middleware</text>
+        <text x="325" y="316" class="t-muted" font-size="9" text-anchor="middle">request ID + logs</text>
 
-        <rect x="300" y="100" width="150" height="64" rx="6" class="c-mask"/>
-        <rect x="300" y="100" width="150" height="64" rx="6" class="c-security" stroke-width="1.5"/>
-        <text x="375" y="130" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Access Guard</text>
-        <text x="375" y="146" class="t-muted" font-size="9" text-anchor="middle">Startup code</text>
+        <rect x="250" y="90" width="150" height="64" rx="6" class="c-mask"/>
+        <rect x="250" y="90" width="150" height="64" rx="6" class="c-security" stroke-width="1.5"/>
+        <text x="325" y="120" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Access Guard</text>
+        <text x="325" y="136" class="t-muted" font-size="9" text-anchor="middle">session + IP limiter</text>
 
-        <rect x="580" y="260" width="150" height="64" rx="6" class="c-mask"/>
-        <rect x="580" y="260" width="150" height="64" rx="6" class="c-database" stroke-width="1.5"/>
-        <text x="655" y="290" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Shared Directory</text>
-        <text x="655" y="306" class="t-muted" font-size="9" text-anchor="middle">Streamed files</text>
+        <rect x="480" y="270" width="150" height="64" rx="6" class="c-mask"/>
+        <rect x="480" y="270" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="555" y="300" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Transfer API</text>
+        <text x="555" y="316" class="t-muted" font-size="9" text-anchor="middle">stream + range</text>
 
-        <rect x="580" y="100" width="150" height="64" rx="6" class="c-mask"/>
-        <rect x="580" y="100" width="150" height="64" rx="6" class="c-database" stroke-width="1.5"/>
-        <text x="655" y="130" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Metadata Index</text>
-        <text x="655" y="146" class="t-muted" font-size="9" text-anchor="middle">Size + SHA-256</text>
+        <rect x="480" y="90" width="150" height="64" rx="6" class="c-mask"/>
+        <rect x="480" y="90" width="150" height="64" rx="6" class="c-messagebus" stroke-width="1.5"/>
+        <text x="555" y="120" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">SSE Broker</text>
+        <text x="555" y="136" class="t-muted" font-size="9" text-anchor="middle">invalidation events</text>
+        <text x="555" y="146" class="t-messagebus" font-size="7" text-anchor="middle">non-blocking</text>
+
+        <rect x="480" y="440" width="150" height="64" rx="6" class="c-mask"/>
+        <rect x="480" y="440" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+        <text x="555" y="470" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Health Endpoint</text>
+        <text x="555" y="486" class="t-muted" font-size="9" text-anchor="middle">status + uptime</text>
+
+        <rect x="730" y="270" width="150" height="64" rx="6" class="c-mask"/>
+        <rect x="730" y="270" width="150" height="64" rx="6" class="c-database" stroke-width="1.5"/>
+        <text x="805" y="300" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Shared Directory</text>
+        <text x="805" y="316" class="t-muted" font-size="9" text-anchor="middle">atomic publish</text>
+
+        <rect x="730" y="90" width="150" height="64" rx="6" class="c-mask"/>
+        <rect x="730" y="90" width="150" height="64" rx="6" class="c-database" stroke-width="1.5"/>
+        <text x="805" y="120" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Metadata Index</text>
+        <text x="805" y="136" class="t-muted" font-size="9" text-anchor="middle">size + SHA-256</text>
 
         <!-- Connection labels -->
-        <rect x="203.8" y="112" width="72.4" height="14" rx="3" class="c-mask"/>
-        <text x="240" y="122" class="t-security" font-size="8" text-anchor="middle">protected URL</text>
-        <rect x="95" y="174" width="30" height="14" rx="3" class="c-mask"/>
-        <text x="110" y="184" class="t-backend" font-size="8" text-anchor="middle">scan</text>
-        <rect x="225" y="272" width="30" height="14" rx="3" class="c-mask"/>
-        <text x="240" y="282" class="t-backend" font-size="8" text-anchor="middle">HTTP</text>
-        <rect x="331.6" y="168" width="86.8" height="14" rx="3" class="c-mask"/>
-        <text x="375" y="178" class="t-security" font-size="8" text-anchor="middle">HttpOnly session</text>
-        <rect x="476.4" y="272" width="77.2" height="14" rx="3" class="c-mask"/>
-        <text x="515" y="282" class="t-backend" font-size="8" text-anchor="middle">stream + range</text>
-        <rect x="458.6" y="110" width="62.8" height="14" rx="3" class="c-mask"/>
-        <text x="490" y="120" class="t-muted" font-size="8" text-anchor="middle">atomic JSON</text>
+        <rect x="95" y="158" width="30" height="14" rx="3" class="c-mask"/>
+        <text x="110" y="168" class="t-backend" font-size="8" text-anchor="middle">scan</text>
+        <rect x="200" y="282" width="30" height="14" rx="3" class="c-mask"/>
+        <text x="215" y="292" class="t-backend" font-size="8" text-anchor="middle">HTTP</text>
+        <rect x="298.4" y="158" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+        <text x="325" y="168" class="t-security" font-size="8" text-anchor="middle">authorize</text>
+        <rect x="408.6" y="282" width="62.8" height="14" rx="3" class="c-mask"/>
+        <text x="440" y="292" class="t-backend" font-size="8" text-anchor="middle">API request</text>
+        <rect x="533.2" y="250" width="43.6" height="14" rx="3" class="c-mask"/>
+        <text x="555" y="260" class="t-messagebus" font-size="8" text-anchor="middle">publish</text>
+        <rect x="269.2" y="188" width="91.6" height="14" rx="3" class="c-mask"/>
+        <text x="315" y="198" class="t-backend" font-size="8" text-anchor="middle">SSE reload signal</text>
+        <rect x="380.7" y="383" width="43.6" height="14" rx="3" class="c-mask"/>
+        <text x="402.5" y="393" class="t-messagebus" font-size="8" text-anchor="middle">healthz</text>
+        <rect x="641.4" y="282" width="77.2" height="14" rx="3" class="c-mask"/>
+        <text x="680" y="292" class="t-backend" font-size="8" text-anchor="middle">stream / range</text>
+        <rect x="611.1" y="176" width="62.8" height="14" rx="3" class="c-mask"/>
+        <text x="642.5" y="186" class="t-muted" font-size="8" text-anchor="middle">atomic JSON</text>
 
         <!-- Legend -->
-        <text x="40" y="383" class="t-primary" font-size="9" font-weight="600">Legend</text>
-        <rect x="40" y="388" width="14" height="9" rx="2" class="c-frontend" stroke-width="1"/>
-        <text x="60" y="396" class="t-muted" font-size="8">Frontend</text>
-        <rect x="138" y="388" width="14" height="9" rx="2" class="c-external" stroke-width="1"/>
-        <text x="158" y="396" class="t-muted" font-size="8">External</text>
-        <rect x="236" y="388" width="14" height="9" rx="2" class="c-backend" stroke-width="1"/>
-        <text x="256" y="396" class="t-muted" font-size="8">Backend</text>
-        <rect x="329" y="388" width="14" height="9" rx="2" class="c-security" stroke-width="1"/>
-        <text x="349" y="396" class="t-muted" font-size="8">Security</text>
-        <rect x="427" y="388" width="14" height="9" rx="2" class="c-database" stroke-width="1"/>
-        <text x="447" y="396" class="t-muted" font-size="8">Database</text>
+        <text x="40" y="563" class="t-primary" font-size="9" font-weight="600">Legend</text>
+        <rect x="40" y="568" width="14" height="9" rx="2" class="c-external" stroke-width="1"/>
+        <text x="60" y="576" class="t-muted" font-size="8">External</text>
+        <rect x="138" y="568" width="14" height="9" rx="2" class="c-frontend" stroke-width="1"/>
+        <text x="158" y="576" class="t-muted" font-size="8">Frontend</text>
+        <rect x="236" y="568" width="14" height="9" rx="2" class="c-backend" stroke-width="1"/>
+        <text x="256" y="576" class="t-muted" font-size="8">Backend</text>
+        <rect x="329" y="568" width="14" height="9" rx="2" class="c-security" stroke-width="1"/>
+        <text x="349" y="576" class="t-muted" font-size="8">Security</text>
+        <rect x="427" y="568" width="14" height="9" rx="2" class="c-messagebus" stroke-width="1"/>
+        <text x="447" y="576" class="t-muted" font-size="8">Message bus</text>
+        <rect x="540" y="568" width="14" height="9" rx="2" class="c-database" stroke-width="1"/>
+        <text x="560" y="576" class="t-muted" font-size="8">Database</text>
       </svg>
     </div>
 
@@ -632,44 +659,44 @@
       <div class="card">
         <div class="card-header">
           <div class="card-dot cyan"></div>
-          <h3>Transfer path</h3>
+          <h3>Streaming</h3>
         </div>
         <ul>
-          <li>&bull; Files stream to disk without loading into memory</li>
-          <li>&bull; The browser reports speed and remaining time</li>
+          <li>&bull; File bytes and SHA-256 are produced in one pass</li>
+          <li>&bull; Range downloads support browser resume</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot amber"></div>
-          <h3>Pairing</h3>
+          <h3>Concurrency</h3>
         </div>
         <ul>
-          <li>&bull; QR code contains the reachable LAN address</li>
-          <li>&bull; Scanning establishes the same protected session</li>
+          <li>&bull; RWMutex protects naming and metadata</li>
+          <li>&bull; Slow SSE clients never block uploads</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot rose"></div>
-          <h3>Safety boundary</h3>
+          <h3>Security boundary</h3>
         </div>
         <ul>
-          <li>&bull; The startup code creates a SameSite session</li>
-          <li>&bull; Filenames are normalized and confined to one directory</li>
+          <li>&bull; Constant-time code check and per-IP throttling</li>
+          <li>&bull; Default HTTP is limited to trusted LANs</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot emerald"></div>
-          <h3>Integrity</h3>
+          <h3>Operations</h3>
         </div>
         <ul>
-          <li>&bull; SHA-256 is calculated during upload</li>
-          <li>&bull; Metadata updates use atomic replacement</li>
+          <li>&bull; Request IDs, structured access logs and healthz</li>
+          <li>&bull; Race tests, benchmark and GitHub Actions CI</li>
         </ul>
       </div>
     </div>

@@ -32,6 +32,8 @@ let uploadChain = Promise.resolve();
 let toastTimer;
 let maxBytes = Number.POSITIVE_INFINITY;
 let shareURL = '';
+let eventSource;
+let refreshTimer;
 
 class AuthRequiredError extends Error {}
 
@@ -57,6 +59,10 @@ async function apiFetch(path, options = {}) {
 }
 
 function showAuthDialog(message = '') {
+  if (eventSource) {
+    eventSource.close();
+    eventSource = undefined;
+  }
   setConnectionState('locked');
   elements.codeError.hidden = !message;
   elements.codeError.textContent = message;
@@ -78,14 +84,34 @@ async function loadFiles() {
     maxBytes = data.maxBytes;
     renderStats(data);
     renderFiles(data.files);
+    return true;
   } catch (error) {
     if (!(error instanceof AuthRequiredError)) {
       showToast(error.message || '加载失败');
     }
+    return false;
   } finally {
     elements.loadingState.hidden = true;
     elements.refreshButton.classList.remove('is-loading');
   }
+}
+
+function connectEvents() {
+  if (eventSource && eventSource.readyState !== EventSource.CLOSED) return;
+
+  eventSource = new EventSource('/api/events');
+  eventSource.addEventListener('open', () => setConnectionState('connected'));
+  eventSource.addEventListener('files', (message) => {
+    const event = JSON.parse(message.data);
+    if (event.kind === 'ready') return;
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(loadFiles, 120);
+  });
+  eventSource.addEventListener('error', () => {
+    if (eventSource?.readyState !== EventSource.CLOSED) {
+      setConnectionState('waiting');
+    }
+  });
 }
 
 function renderStats(data) {
@@ -409,7 +435,7 @@ elements.authForm.addEventListener('submit', async (event) => {
     await createSession(token);
     elements.authDialog.close();
     elements.codeInput.value = '';
-    await loadFiles();
+    if (await loadFiles()) connectEvents();
   } catch (error) {
     elements.codeError.textContent = error.message || '连接失败';
     elements.codeError.hidden = false;
@@ -431,7 +457,7 @@ async function initialize() {
       showAuthDialog(error.message);
     }
   }
-  await loadFiles();
+  if (await loadFiles()) connectEvents();
 }
 
 initialize();

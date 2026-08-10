@@ -3,32 +3,38 @@
   "diagram_type": "architecture",
   "meta": {
     "title": "LAN Drop",
-    "subtitle": "Browser-based file transfer inside a trusted local network",
+    "subtitle": "Interview-ready browser file transfer inside a trusted LAN",
     "output": "architecture.html"
   },
   "components": [
-    { "id": "qr", "type": "frontend", "label": "QR Pairing", "sublabel": "Private LAN URL", "pos": [40, 100], "size": [140, 64] },
-    { "id": "devices", "type": "external", "label": "LAN Devices", "sublabel": "Browser / Mobile", "pos": [40, 260], "size": [140, 64] },
-    { "id": "server", "type": "backend", "label": "Go HTTP Server", "sublabel": "API + embedded UI", "pos": [300, 260], "size": [150, 64] },
-    { "id": "token", "type": "security", "label": "Access Guard", "sublabel": "Startup code", "pos": [300, 100], "size": [150, 64] },
-    { "id": "files", "type": "database", "label": "Shared Directory", "sublabel": "Streamed files", "pos": [580, 260], "size": [150, 64] },
-    { "id": "index", "type": "database", "label": "Metadata Index", "sublabel": "Size + SHA-256", "pos": [580, 100], "size": [150, 64] }
+    { "id": "devices", "type": "external", "label": "LAN Devices", "sublabel": "Browser / Mobile", "pos": [40, 270], "size": [140, 64] },
+    { "id": "pairing", "type": "frontend", "label": "QR Pairing", "sublabel": "LAN URL + code", "pos": [40, 90], "size": [140, 64] },
+    { "id": "middleware", "type": "backend", "label": "HTTP Middleware", "sublabel": "request ID + logs", "pos": [250, 270], "size": [150, 64] },
+    { "id": "guard", "type": "security", "label": "Access Guard", "sublabel": "session + IP limiter", "pos": [250, 90], "size": [150, 64] },
+    { "id": "api", "type": "backend", "label": "Transfer API", "sublabel": "stream + range", "pos": [480, 270], "size": [150, 64] },
+    { "id": "events", "type": "messagebus", "label": "SSE Broker", "sublabel": "invalidation events", "pos": [480, 90], "size": [150, 64], "tag": "non-blocking" },
+    { "id": "health", "type": "backend", "label": "Health Endpoint", "sublabel": "status + uptime", "pos": [480, 440], "size": [150, 64] },
+    { "id": "files", "type": "database", "label": "Shared Directory", "sublabel": "atomic publish", "pos": [730, 270], "size": [150, 64] },
+    { "id": "index", "type": "database", "label": "Metadata Index", "sublabel": "size + SHA-256", "pos": [730, 90], "size": [150, 64] }
   ],
   "boundaries": [
-    { "kind": "region", "label": "Host machine", "wraps": ["server", "token", "files", "index"] }
+    { "kind": "region", "label": "Host machine / single Go binary", "wraps": ["middleware", "guard", "api", "events", "health", "files", "index"] }
   ],
   "connections": [
-    { "from": "token", "to": "qr", "label": "protected URL", "variant": "security", "fromSide": "left", "toSide": "right" },
-    { "from": "qr", "to": "devices", "label": "scan", "variant": "emphasis", "fromSide": "bottom", "toSide": "top", "labelAt": [110, 184] },
-    { "from": "devices", "to": "server", "label": "HTTP", "variant": "emphasis" },
-    { "from": "token", "to": "server", "label": "HttpOnly session", "variant": "security", "fromSide": "bottom", "toSide": "top", "labelAt": [375, 178] },
-    { "from": "server", "to": "files", "label": "stream + range", "variant": "emphasis" },
-    { "from": "server", "to": "index", "label": "atomic JSON", "fromSide": "top", "toSide": "left", "route": "orthogonal-v", "labelAt": [490, 120] }
+    { "from": "pairing", "to": "devices", "label": "scan", "variant": "emphasis", "fromSide": "bottom", "toSide": "top", "labelAt": [110, 168] },
+    { "from": "devices", "to": "middleware", "label": "HTTP", "variant": "emphasis" },
+    { "from": "guard", "to": "middleware", "label": "authorize", "variant": "security", "fromSide": "bottom", "toSide": "top", "labelAt": [325, 168] },
+    { "from": "middleware", "to": "api", "label": "API request", "variant": "emphasis" },
+    { "from": "api", "to": "events", "label": "publish", "variant": "dashed", "fromSide": "top", "toSide": "bottom" },
+    { "from": "events", "to": "devices", "label": "SSE reload signal", "variant": "emphasis", "fromSide": "left", "toSide": "right", "via": [[430, 122], [430, 210], [205, 210], [205, 302]], "labelAt": [315, 198] },
+    { "from": "middleware", "to": "health", "label": "healthz", "variant": "dashed", "fromSide": "bottom", "toSide": "left" },
+    { "from": "api", "to": "files", "label": "stream / range", "variant": "emphasis" },
+    { "from": "api", "to": "index", "label": "atomic JSON", "fromSide": "top", "toSide": "left" }
   ],
   "cards": [
-    { "dot": "cyan", "title": "Transfer path", "items": ["Files stream to disk without loading into memory", "The browser reports speed and remaining time"] },
-    { "dot": "amber", "title": "Pairing", "items": ["QR code contains the reachable LAN address", "Scanning establishes the same protected session"] },
-    { "dot": "rose", "title": "Safety boundary", "items": ["The startup code creates a SameSite session", "Filenames are normalized and confined to one directory"] },
-    { "dot": "emerald", "title": "Integrity", "items": ["SHA-256 is calculated during upload", "Metadata updates use atomic replacement"] }
+    { "dot": "cyan", "title": "Streaming", "items": ["File bytes and SHA-256 are produced in one pass", "Range downloads support browser resume"] },
+    { "dot": "amber", "title": "Concurrency", "items": ["RWMutex protects naming and metadata", "Slow SSE clients never block uploads"] },
+    { "dot": "rose", "title": "Security boundary", "items": ["Constant-time code check and per-IP throttling", "Default HTTP is limited to trusted LANs"] },
+    { "dot": "emerald", "title": "Operations", "items": ["Request IDs, structured access logs and healthz", "Race tests, benchmark and GitHub Actions CI"] }
   ]
 }

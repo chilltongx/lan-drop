@@ -1,8 +1,11 @@
 package server
 
 import (
+	"context"
+	"crypto/rand"
 	"crypto/subtle"
 	"embed"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -39,6 +42,9 @@ type Server struct {
 	maxBytes int64
 	shareURL string
 	logger   *slog.Logger
+	events   *eventBroker
+	limiter  *loginLimiter
+	started  time.Time
 }
 
 func New(options Options) *Server {
@@ -52,16 +58,21 @@ func New(options Options) *Server {
 		maxBytes: options.MaxBytes,
 		shareURL: options.ShareURL,
 		logger:   logger,
+		events:   newEventBroker(),
+		limiter:  newLoginLimiter(5, time.Minute, time.Minute),
+		started:  time.Now(),
 	}
 }
 
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /healthz", s.handleHealth)
 	mux.HandleFunc("POST /api/session", s.handleSession)
 	mux.Handle("GET /api/files", s.requireAuth(http.HandlerFunc(s.handleList)))
 	mux.Handle("POST /api/files", s.requireAuth(http.HandlerFunc(s.handleUpload)))
 	mux.Handle("GET /api/files/{name}", s.requireAuth(http.HandlerFunc(s.handleDownload)))
 	mux.Handle("DELETE /api/files/{name}", s.requireAuth(http.HandlerFunc(s.handleDelete)))
+	mux.Handle("GET /api/events", s.requireAuth(http.HandlerFunc(s.handleEvents)))
 	mux.Handle("GET /api/share", s.requireAuth(http.HandlerFunc(s.handleShare)))
 	mux.Handle("GET /api/share/qr", s.requireAuth(http.HandlerFunc(s.handleShareQR)))
 
@@ -75,6 +86,12 @@ func (s *Server) Handler() http.Handler {
 }
 
 func (s *Server) handleSession(w http.ResponseWriter, r *http.Request) {
+	client := clientAddress(r)
+	if allowed, retryAfter := s.limiter.allow(client); !allowed {
+		writeRateLimit(w, retryAfter)
+		return
+	}
+
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	var request struct {
 		Token string `json:"token"`
@@ -85,9 +102,14 @@ func (s *Server) handleSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !s.matchesToken(request.Token) {
+		if retryAfter := s.limiter.failure(client); retryAfter > 0 {
+			writeRateLimit(w, retryAfter)
+			return
+		}
 		writeError(w, http.StatusUnauthorized, "连接码不正确")
 		return
 	}
+	s.limiter.success(client)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     sessionCookie,
@@ -98,6 +120,14 @@ func (s *Server) handleSession(w http.ResponseWriter, r *http.Request) {
 	})
 	w.Header().Set("Cache-Control", "no-store")
 	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+}
+
+func (s *Server) handleHealth(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	writeJSON(w, http.StatusOK, map[string]any{
+		"status":        "ok",
+		"uptimeSeconds": int64(time.Since(s.started).Seconds()),
+	})
 }
 
 func (s *Server) handleList(w http.ResponseWriter, _ *http.Request) {
@@ -145,6 +175,7 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, http.StatusCreated, file)
+		s.events.publish("created", file.Name)
 		return
 	}
 
@@ -172,6 +203,7 @@ func (s *Server) handleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	s.events.publish("deleted", r.PathValue("name"))
 }
 
 func (s *Server) handleShare(w http.ResponseWriter, r *http.Request) {
@@ -269,11 +301,66 @@ func (s *Server) securityHeaders(next http.Handler) http.Handler {
 func (s *Server) logRequests(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		started := time.Now()
-		next.ServeHTTP(w, r)
-		if strings.HasPrefix(r.URL.Path, "/api/") {
-			s.logger.Info("request", "method", r.Method, "path", safePath(r.URL), "duration", time.Since(started))
+		requestID := newRequestID()
+		w.Header().Set("X-Request-ID", requestID)
+		capture := &responseCapture{ResponseWriter: w}
+		r = r.WithContext(context.WithValue(r.Context(), requestIDContextKey{}, requestID))
+		next.ServeHTTP(capture, r)
+		if strings.HasPrefix(r.URL.Path, "/api/") || r.URL.Path == "/healthz" {
+			s.logger.Info("request",
+				"request_id", requestID,
+				"method", r.Method,
+				"path", safePath(r.URL),
+				"status", capture.statusCode(),
+				"bytes", capture.bytes,
+				"duration", time.Since(started),
+			)
 		}
 	})
+}
+
+type requestIDContextKey struct{}
+
+type responseCapture struct {
+	http.ResponseWriter
+	status int
+	bytes  int
+}
+
+func (w *responseCapture) WriteHeader(status int) {
+	if w.status != 0 {
+		return
+	}
+	w.status = status
+	w.ResponseWriter.WriteHeader(status)
+}
+
+func (w *responseCapture) Write(p []byte) (int, error) {
+	if w.status == 0 {
+		w.WriteHeader(http.StatusOK)
+	}
+	n, err := w.ResponseWriter.Write(p)
+	w.bytes += n
+	return n, err
+}
+
+func (w *responseCapture) Unwrap() http.ResponseWriter {
+	return w.ResponseWriter
+}
+
+func (w *responseCapture) statusCode() int {
+	if w.status == 0 {
+		return http.StatusOK
+	}
+	return w.status
+}
+
+func newRequestID() string {
+	var value [8]byte
+	if _, err := rand.Read(value[:]); err == nil {
+		return hex.EncodeToString(value[:])
+	}
+	return fmt.Sprintf("fallback-%d", time.Now().UnixNano())
 }
 
 func safePath(u *url.URL) string {
