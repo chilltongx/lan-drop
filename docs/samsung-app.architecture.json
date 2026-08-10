@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "LAN Drop Samsung App",
+    "subtitle": "拍照预览、最小权限上传与 SSE 最终一致同步",
+    "output": "samsung-app-architecture.html"
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "手机用户", "sublabel": "拍照 / 选文件 / 确认上传", "pos": [40, 290], "size": [140, 68] },
+    { "id": "camera", "type": "external", "label": "三星系统相机", "sublabel": "TakePicture 合约", "pos": [250, 80], "size": [150, 68], "tag": "无需 CAMERA" },
+    { "id": "ui", "type": "frontend", "label": "Compose UI", "sublabel": "预览 · 进度 · 文件列表", "pos": [250, 290], "size": [150, 68] },
+    { "id": "fileprovider", "type": "security", "label": "FileProvider", "sublabel": "临时 content:// URI", "pos": [490, 80], "size": [150, 68], "tag": "not exported" },
+    { "id": "viewmodel", "type": "backend", "label": "ViewModel", "sublabel": "StateFlow · 协程生命周期", "pos": [490, 290], "size": [150, 68] },
+    { "id": "policy", "type": "security", "label": "连接策略", "sublabel": "私网 HTTP / 公网 HTTPS", "pos": [490, 480], "size": [150, 68], "tag": "连接码不落盘" },
+    { "id": "client", "type": "backend", "label": "LAN API Client", "sublabel": "64 KiB 流式 multipart", "pos": [730, 290], "size": [150, 68] },
+    { "id": "permission", "type": "security", "label": "局域网权限", "sublabel": "Android 17 按需授权", "pos": [730, 480], "size": [150, 68] },
+    { "id": "events", "type": "messagebus", "label": "SSE Broker", "sublabel": "可丢失的失效通知", "pos": [970, 80], "size": [150, 68] },
+    { "id": "api", "type": "backend", "label": "Go HTTP API", "sublabel": "认证 · 限流 · Range", "pos": [970, 290], "size": [150, 68] },
+    { "id": "storage", "type": "database", "label": "共享目录", "sublabel": "临时文件 + 原子 Rename", "pos": [1210, 290], "size": [150, 68] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Samsung / Android App", "wraps": ["ui", "fileprovider", "viewmodel", "policy", "client", "permission"] },
+    { "kind": "security-group", "label": "LAN Drop Host", "wraps": ["events", "api", "storage"] }
+  ],
+  "connections": [
+    { "from": "user", "to": "ui", "label": "用户确认", "variant": "emphasis" },
+    { "from": "ui", "to": "camera", "label": "启动系统相机", "fromSide": "top", "toSide": "bottom" },
+    { "from": "camera", "to": "fileprovider", "label": "写入 JPEG URI", "variant": "security" },
+    { "from": "fileprovider", "to": "viewmodel", "label": "预览引用", "fromSide": "bottom", "toSide": "top", "labelAt": [565, 162] },
+    { "from": "ui", "to": "viewmodel", "label": "intent / state", "variant": "emphasis" },
+    { "from": "policy", "to": "viewmodel", "label": "校验端点", "variant": "security", "fromSide": "top", "toSide": "bottom" },
+    { "from": "viewmodel", "to": "client", "label": "可取消任务", "variant": "emphasis" },
+    { "from": "permission", "to": "client", "label": "授权 LAN", "variant": "security", "fromSide": "top", "toSide": "bottom" },
+    { "from": "client", "to": "api", "label": "HTTP(S) + X-Share-Token", "variant": "emphasis", "labelAt": [925, 372] },
+    { "from": "api", "to": "storage", "label": "流式写入 / 列表" },
+    { "from": "api", "to": "events", "label": "publish", "variant": "dashed", "fromSide": "top", "toSide": "bottom" },
+    { "from": "events", "to": "client", "label": "SSE: 状态失效", "variant": "dashed", "fromSide": "left", "toSide": "top", "labelDy": -18 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "主链路", "items": ["拍照后先本地预览，由用户确认上传", "照片和文件以固定缓冲流式发送，不整体进内存"] },
+    { "dot": "rose", "title": "最小权限", "items": ["复用系统相机，不申请 CAMERA 或媒体库权限", "FileProvider 不导出，只临时授权 URI；连接码不落盘"] },
+    { "dot": "emerald", "title": "可靠性", "items": ["StateFlow 单向状态；取消协程不伪装成失败", "SSE 仅通知变化，断线后拉取权威列表恢复"] },
+    { "dot": "violet", "title": "版本适配", "items": ["Android 17 按需申请 ACCESS_LOCAL_NETWORK", "Android 10+ 共用一套 Compose 客户端"] }
+  ]
+}

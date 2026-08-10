@@ -132,6 +132,42 @@ func TestLoginLimiterBoundsTrackedClients(t *testing.T) {
 	}
 }
 
+func TestInvalidAPIHeaderIsRateLimited(t *testing.T) {
+	store, err := storage.New(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	app := New(Options{
+		Store:    store,
+		Token:    "482901",
+		MaxBytes: 1024,
+		Logger:   slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+	app.limiter = newLoginLimiter(2, time.Minute, time.Minute)
+	testServer := httptest.NewServer(app.Handler())
+	defer testServer.Close()
+
+	for attempt := 1; attempt <= 2; attempt++ {
+		request, err := http.NewRequest(http.MethodGet, testServer.URL+"/api/files", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		request.Header.Set("X-Share-Token", "wrong")
+		response, err := http.DefaultClient.Do(request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		response.Body.Close()
+		want := http.StatusUnauthorized
+		if attempt == 2 {
+			want = http.StatusTooManyRequests
+		}
+		if response.StatusCode != want {
+			t.Fatalf("attempt %d status = %d, want %d", attempt, response.StatusCode, want)
+		}
+	}
+}
+
 func TestHealthAndRequestTracing(t *testing.T) {
 	store, err := storage.New(t.TempDir())
 	if err != nil {

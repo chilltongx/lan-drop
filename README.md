@@ -4,6 +4,8 @@
 
 一个使用 Go 编写的局域网文件快传工具。主机启动服务后，手机或其他电脑直接打开浏览器即可上传和下载文件。
 
+项目同时包含面向三星 One UI 的原生 Android 客户端：支持系统相机拍照、预览确认上传、文件选择和 SSE 实时列表。
+
 ![LAN Drop 桌面界面](docs/ui-desktop.png)
 
 ## 功能
@@ -19,6 +21,7 @@
 - 请求 ID、结构化访问日志与 `/healthz` 健康检查
 - 参考 Pass 的清爽响应式界面，支持减少动态效果
 - 单个 Go 二进制，网页资源已嵌入程序
+- 三星 Android 原生客户端，拍照上传且无需相机或媒体库权限
 
 ## 面试亮点
 
@@ -28,6 +31,7 @@
 - SSE 事件广播、有限 channel 和非阻塞背压策略
 - 常量时间认证、每 IP 限流、路径穿越防护与明确的信任边界
 - CI 执行依赖校验、`go vet`、race test 和构建
+- Android 端展示 FileProvider、StateFlow、协程取消和 API 37 局域网权限适配
 
 详细的开源项目对标、设计取舍、性能基线、演进路线和 90 秒讲法见[《面试设计说明》](docs/面试设计说明.md)。
 
@@ -59,6 +63,15 @@ LAN Drop 已启动
 go build -o lan-drop ./cmd/lan-drop
 ./lan-drop
 ```
+
+三星 Android 客户端需要 JDK 17 和 Android SDK Platform 37：
+
+```bash
+cd android
+./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest
+```
+
+安装和设计说明见 [android/README.md](android/README.md)。
 
 常用参数：
 
@@ -105,7 +118,8 @@ go test ./internal/storage -run '^$' -bench BenchmarkStoreSaveAndDelete1MiB -ben
 cmd/lan-drop/       命令行入口与局域网地址发现
 internal/server/    HTTP API、访问控制、SSE 广播和嵌入式网页
 internal/storage/   文件存储、校验与元数据索引
+android/            三星 One UI 原生客户端与 Gradle 工程
 docs/               架构图、面试设计说明和界面截图
 ```
 
-[交互式架构图](docs/architecture.html)可以切换明暗主题，并导出 PNG、JPEG、WebP 或 SVG。
+[服务端交互式架构图](docs/architecture.html)和[移动端交互式架构图](docs/samsung-app-architecture.html)均可切换明暗主题，并导出 PNG、JPEG、WebP 或 SVG。

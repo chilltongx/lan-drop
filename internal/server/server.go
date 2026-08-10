@@ -256,13 +256,27 @@ func (s *Server) shareURLFor(r *http.Request) string {
 func (s *Server) requireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		provided := r.Header.Get("X-Share-Token")
+		credentialPresented := provided != ""
 		if cookie, err := r.Cookie(sessionCookie); err == nil {
 			provided = cookie.Value
+			credentialPresented = true
 		}
 		if !s.matchesToken(provided) {
+			if credentialPresented {
+				client := clientAddress(r)
+				if allowed, retryAfter := s.limiter.allow(client); !allowed {
+					writeRateLimit(w, retryAfter)
+					return
+				}
+				if retryAfter := s.limiter.failure(client); retryAfter > 0 {
+					writeRateLimit(w, retryAfter)
+					return
+				}
+			}
 			writeError(w, http.StatusUnauthorized, "需要连接码")
 			return
 		}
+		s.limiter.success(clientAddress(r))
 		next.ServeHTTP(w, r)
 	})
 }

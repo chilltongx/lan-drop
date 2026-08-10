@@ -32,3 +32,24 @@ jobs:
 
       - name: Build
         run: go build ./cmd/lan-drop
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+          cache-dependency-path: |
+            android/*.gradle.kts
+            android/gradle/wrapper/gradle-wrapper.properties
+            android/app/*.gradle.kts
+
+      - name: Build and test Android app
+        working-directory: android
+        run: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest
