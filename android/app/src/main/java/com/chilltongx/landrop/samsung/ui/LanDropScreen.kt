@@ -107,7 +107,7 @@ fun LanDropScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("LAN Drop", fontWeight = FontWeight.SemiBold)
+                        Text("bigbang", fontWeight = FontWeight.SemiBold)
                         Text(
                             "Samsung 手机端",
                             style = MaterialTheme.typography.labelMedium,
@@ -233,7 +233,7 @@ private fun ConnectionCard(
                 Column {
                     Text("连接电脑", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                     Text(
-                        "输入电脑上 LAN Drop 显示的地址和连接码",
+                        "输入电脑上 bigbang 显示的地址和连接码",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

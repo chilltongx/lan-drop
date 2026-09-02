@@ -87,7 +87,7 @@ func run() int {
 	}
 
 	absDir, _ := filepath.Abs(*dir)
-	fmt.Println("LAN Drop 已启动")
+	fmt.Println("bigbang 已启动")
 	fmt.Printf("连接码：%s\n", accessCode)
 	fmt.Printf("共享目录：%s\n", absDir)
 	for _, shareURL := range shareLinks {

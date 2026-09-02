@@ -1,4 +1,4 @@
-# LAN Drop
+# bigbang
 
 [![CI](https://github.com/chilltongx/lan-drop/actions/workflows/ci.yml/badge.svg)](https://github.com/chilltongx/lan-drop/actions/workflows/ci.yml)
 
@@ -6,7 +6,7 @@
 
 项目同时包含面向三星 One UI 的原生 Android 客户端：支持系统相机拍照、预览确认上传、文件选择和 SSE 实时列表。
 
-![LAN Drop 桌面界面](docs/ui-desktop.png)
+![bigbang 桌面界面](docs/ui-desktop.png)
 
 ## 功能
 
@@ -47,7 +47,7 @@ go run ./cmd/lan-drop
 启动后会自动打开浏览器，终端同时显示连接码和可访问地址：
 
 ```text
-LAN Drop 已启动
+bigbang 已启动
 连接码：482901
 共享目录：/Users/you/lan-drop/shared
 打开：http://192.168.1.20:8080/?token=482901
@@ -60,8 +60,8 @@ LAN Drop 已启动
 ## 构建
 
 ```bash
-go build -o lan-drop ./cmd/lan-drop
-./lan-drop
+go build -o bigbang ./cmd/lan-drop
+./bigbang
 ```
 
 三星 Android 客户端需要 JDK 17 和 Android SDK Platform 37：
@@ -86,12 +86,12 @@ cd android
 例如：
 
 ```bash
-./lan-drop -addr :9000 -dir /Users/you/Downloads/LAN-Drop -max-mb 8192
+./bigbang -addr :9000 -dir /Users/you/Downloads/bigbang -max-mb 8192
 ```
 
 ## 安全说明
 
-LAN Drop 面向可信局域网。连接码可以阻止同网段中的随意访问，但默认使用 HTTP，传输内容不会加密。不要把监听端口直接暴露到公网；在公共或不可信网络中使用时，应放在带 TLS 的反向代理或 VPN 后面。
+bigbang 面向可信局域网。连接码可以阻止同网段中的随意访问，但默认使用 HTTP，传输内容不会加密。不要把监听端口直接暴露到公网；在公共或不可信网络中使用时，应放在带 TLS 的反向代理或 VPN 后面。
 
 服务只会读写指定共享目录中的普通文件。文件名会被规范化，下载和删除接口会拒绝目录穿越路径。
 

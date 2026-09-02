@@ -28,7 +28,7 @@ object ServerEndpointPolicy {
         require(!host.isNullOrBlank()) { "服务器地址缺少主机名" }
         require(uri.userInfo == null) { "服务器地址不能包含用户名或密码" }
         require(uri.fragment == null) { "服务器地址不能包含片段" }
-        require(uri.path.isNullOrEmpty() || uri.path == "/") { "LAN Drop 服务器必须部署在网站根路径" }
+        require(uri.path.isNullOrEmpty() || uri.path == "/") { "bigbang 服务器必须部署在网站根路径" }
         if (scheme == "http") {
             require(isLocalHost(host)) { "公网地址必须使用 HTTPS；HTTP 仅允许局域网地址" }
         }

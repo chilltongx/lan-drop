@@ -225,7 +225,7 @@ func (s *Server) handleShareQR(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Content-Type", "image/png")
-	w.Header().Set("Content-Disposition", "inline; filename=lan-drop-qr.png")
+	w.Header().Set("Content-Disposition", "inline; filename=bigbang-qr.png")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(code.PNG()); err != nil {
 		s.logger.Error("write share QR code", "error", err)
@@ -400,5 +400,5 @@ func writeError(w http.ResponseWriter, status int, message string) {
 }
 
 func (s *Server) String() string {
-	return fmt.Sprintf("LAN Drop (%s)", s.store.Root())
+	return fmt.Sprintf("bigbang (%s)", s.store.Root())
 }

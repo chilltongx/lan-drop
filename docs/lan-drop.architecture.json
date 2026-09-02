@@ -2,7 +2,7 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "LAN Drop",
+    "title": "bigbang",
     "subtitle": "Interview-ready browser file transfer inside a trusted LAN",
     "output": "architecture.html"
   },

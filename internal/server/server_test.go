@@ -194,7 +194,7 @@ func TestFrontendAndSecurityHeaders(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if response.StatusCode != http.StatusOK || !bytes.Contains(body, []byte("LAN Drop")) {
+	if response.StatusCode != http.StatusOK || !bytes.Contains(body, []byte("bigbang")) {
 		t.Fatalf("frontend status = %d", response.StatusCode)
 	}
 	if response.Header.Get("Content-Security-Policy") == "" || response.Header.Get("X-Frame-Options") != "DENY" {

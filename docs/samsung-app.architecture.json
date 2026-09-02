@@ -2,7 +2,7 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "LAN Drop Samsung App",
+    "title": "bigbang Samsung App",
     "subtitle": "拍照预览、最小权限上传与 SSE 最终一致同步",
     "output": "samsung-app-architecture.html"
   },
@@ -21,7 +21,7 @@
   ],
   "boundaries": [
     { "kind": "region", "label": "Samsung / Android App", "wraps": ["ui", "fileprovider", "viewmodel", "policy", "client", "permission"] },
-    { "kind": "security-group", "label": "LAN Drop Host", "wraps": ["events", "api", "storage"] }
+    { "kind": "security-group", "label": "bigbang Host", "wraps": ["events", "api", "storage"] }
   ],
   "connections": [
     { "from": "user", "to": "ui", "label": "用户确认", "variant": "emphasis" },

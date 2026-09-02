@@ -85,7 +85,7 @@ class LanDropViewModel(application: Application) : AndroidViewModel(application)
                     )
                 }
                 startEvents(parsed, token)
-                _messages.emit("已连接到 LAN Drop")
+                _messages.emit("已连接到 bigbang")
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
@@ -161,7 +161,7 @@ class LanDropViewModel(application: Application) : AndroidViewModel(application)
     ) {
         val currentEndpoint = endpoint
         if (currentEndpoint == null || _uiState.value.connection != ConnectionStatus.CONNECTED) {
-            _messages.tryEmit("请先连接 LAN Drop 服务器")
+            _messages.tryEmit("请先连接 bigbang 服务器")
             return
         }
         if (_uiState.value.isUploading) {
