@@ -1,8 +1,10 @@
-# bigbang
+# bigbang — LAN file transfer
 
 [![CI](https://github.com/chilltongx/lan-drop/actions/workflows/ci.yml/badge.svg)](https://github.com/chilltongx/lan-drop/actions/workflows/ci.yml)
 
-一个使用 Go 编写的局域网文件快传工具。主机启动服务后，手机或其他电脑直接打开浏览器即可上传和下载文件。
+bigbang（仓库名 `lan-drop`）是一个使用 Go 编写的局域网文件快传工具。主机启动服务后，手机或其他电脑直接打开浏览器即可上传和下载文件。
+
+Transfer files across LAN devices with a Go server, browser UI, and native Android client.
 
 项目同时包含面向三星 One UI 的原生 Android 客户端：支持系统相机拍照、预览确认上传、文件选择和 SSE 实时列表。
 
@@ -23,24 +25,13 @@
 - 单个 Go 二进制，网页资源已嵌入程序
 - 三星 Android 原生客户端，拍照上传且无需相机或媒体库权限
 
-## 面试亮点
-
-- 流式上传与同步 SHA-256，内存占用不随文件大小线性增长
-- 临时文件 + `Rename` 原子发布，元数据索引原子替换
-- `RWMutex` 并发控制，同名并发上传测试与 race detector
-- SSE 事件广播、有限 channel 和非阻塞背压策略
-- 常量时间认证、每 IP 限流、路径穿越防护与明确的信任边界
-- CI 执行依赖校验、`go vet`、race test 和构建
-- Android 端展示 FileProvider、StateFlow、协程取消和 API 37 局域网权限适配
-
-详细的开源项目对标、设计取舍、性能基线、演进路线和 90 秒讲法见[《面试设计说明》](docs/面试设计说明.md)。
-
 ## 快速开始
 
 需要 Go 1.26 或更新版本。
 
 ```bash
-cd /Users/x/Go/lan-drop
+git clone https://github.com/chilltongx/lan-drop.git
+cd lan-drop
 go run ./cmd/lan-drop
 ```
 
@@ -88,6 +79,18 @@ cd android
 ```bash
 ./bigbang -addr :9000 -dir /Users/you/Downloads/bigbang -max-mb 8192
 ```
+
+## 工程设计
+
+- 流式上传与同步 SHA-256，内存占用不随文件大小线性增长
+- 临时文件 + `Rename` 原子发布，元数据索引原子替换
+- `RWMutex` 并发控制，同名并发上传测试与 race detector
+- SSE 事件广播、有限 channel 和非阻塞背压策略
+- 常量时间认证、每 IP 限流、路径穿越防护与明确的信任边界
+- CI 执行依赖校验、`go vet`、race test 和构建
+- Android 端展示 FileProvider、StateFlow、协程取消和 API 37 局域网权限适配
+
+详细的设计取舍、性能基线和演进路线见[设计说明](docs/面试设计说明.md)。
 
 ## 安全说明
 
